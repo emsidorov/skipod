@@ -48,7 +48,7 @@ int main(int an, char **as)
 
 void init()
 {
-	// #pragma omp parallel for default(shared) private(i, j, k)
+	#pragma omp parallel for default(shared) private(i, j, k)
 	for (i = 0; i <= N - 1; i++)
 	for (j = 0; j <= N - 1; j++)
 	for (k = 0; k <= N - 1; k++)
@@ -96,7 +96,7 @@ void verify()
 	double s;
 
 	s = 0.;
-	// #pragma omp parallel for default(shared) private(i, j, k) reduction(+:s)
+	#pragma omp parallel for default(shared) private(i, j, k) reduction(+:s)
 	for (i = 0; i <= N - 1; i++)
 	for (j = 0; j <= N - 1; j++)
 	for (k = 0; k <= N - 1; k++)
