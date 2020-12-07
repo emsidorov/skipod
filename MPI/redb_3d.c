@@ -5,7 +5,7 @@
 
 #define Max(a, b) ((a) > (b) ? (a) : (b))
 
-#define N (2*2*2*2*2*2*2*2+2)
+#define N (2*2*2*2*2*2*2*2*2*2+2)
 double maxeps = 0.1e-7;
 int itmax = 100;
 int i, j, k;
@@ -19,7 +19,7 @@ void relax();
 void init();
 void verify();
 
-int nproc, rank, start_row, end_row, nrow;
+int nproc, rank, start_row, end_row, rows;
 MPI_Request requests[4];
 MPI_Status statuses[4];
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
 	start_row = (N - 2) / nproc * rank + 1; 
 	end_row = (N - 2) / nproc * (rank + 1) + 1;
-	nrow = end_row - start_row;
+	rows = end_row - start_row;
 
 	double start = MPI_Wtime();
 
@@ -43,13 +43,15 @@ int main(int argc, char **argv)
 	{
 		eps = 0.;
 		relax();
-		// printf("it=%4i   eps=%f\n", it, eps);
+		if (!rank) {
+			printf("it=%4i   eps=%f\n", it, eps);
+		}
 		if (eps < maxeps)
 			break;
 	}
 
 	MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Gather(A[start_row], nrow * N * N, MPI_DOUBLE, A[1], nrow * N * N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Gather(A[start_row], rows * N * N, MPI_DOUBLE, A[1], rows * N * N, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 	double end = MPI_Wtime();
 	if (!rank) {
@@ -94,7 +96,6 @@ void share_start_row() {
 }
 
 void waitall() {
-	
 	int count = 4, shift = 0;
 
 	if (!rank) {
